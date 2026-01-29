@@ -1,11 +1,5 @@
 {
-  "name": "ad-vpn-residential",
+  "name": "residential-vpn",
   "version": "1.0.0",
-  "type": "module",
-  "dependencies": {
-    "node-fetch": "^3.3.2"
-  },
-  "scripts": {
-    "dev": "vercel dev"
-  }
+  "type": "module"
 }
