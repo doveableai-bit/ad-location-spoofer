@@ -1,45 +1,43 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>AD Location Spoofer Test</title>
+  <title>🇺🇸🇬🇧 AD Location Spoofer</title>
+  <meta charset="utf-8">
   <style>
-    body { font-family: monospace; padding: 20px; }
-    button { padding: 10px 20px; margin: 5px; background: #0070f3; color: white; border: none; cursor: pointer; }
-    #result { background: #f0f0f0; padding: 20px; margin-top: 20px; white-space: pre-wrap; }
+    body{font-family:monospace;background:#1a1a1a;color:#0f0;padding:2rem;max-width:800px;margin:auto}
+    button{padding:1rem 2rem;margin:.5rem;background:#0070f3;color:white;border:none;border-radius:5px;cursor:pointer;font-size:16px}
+    button:hover{background:#005bb5}
+    #result{background:#111;padding:1.5rem;margin-top:1rem;border-radius:5px;white-space:pre-wrap;font-family:monospace}
+    .ip{display:inline-block;background:#333;padding:.5rem;border-radius:3px;margin:.2rem}
   </style>
 </head>
 <body>
-  <h1>🛡️ AD Location Spoofer</h1>
-  <button onclick="testNY()">Test New York IP</button>
-  <button onclick="testLondon()">Test London IP</button>
-  <button onclick="testIPLeak()">IP Leak Test</button>
+  <h1>🛡️ AD Location Spoofer <small>v2.0</small></h1>
+  <p>Test your NY/UK IP spoofing before browser proxy setup:</p>
   
-  <div id="result"></div>
+  <button onclick="testNY()">🇺🇸 Test New York IP</button>
+  <button onclick="testUK()">🇬🇧 Test London IP</button>
+  <button onclick="testLeak()">🔍 Full IP Leak Test</button>
+  
+  <div id="result">Click a button to test...</div>
 
   <script>
-    async function proxyRequest(location) {
-      const ip = await (await fetch(`/api/rotate?location=${location}`)).json();
-      const test = await (await fetch(`/api/proxy?url=https://httpbin.org/ip&location=${location}`)).json();
-      
-      return { ...ip, origin: test.origin };
-    }
-
-    async function testNY() {
-      const result = await proxyRequest('newyork');
-      document.getElementById('result').innerHTML = JSON.stringify(result, null, 2);
-    }
-
-    async function testLondon() {
-      const result = await proxyRequest('london');
-      document.getElementById('result').innerHTML = JSON.stringify(result, null, 2);
-    }
-
-    async function testIPLeak() {
-      const ny = await proxyRequest('newyork');
-      const london = await proxyRequest('london');
-      document.getElementById('result').innerHTML = 
-        `NY IP: ${ny.ip}\nLondon IP: ${london.ip}\n\nSuccess: IPs rotated!`;
-    }
+  async function testNY() {
+    const res = await fetch('/api/proxy?url=https://httpbin.org/ip&location=newyork');
+    document.getElementById('result').textContent = await res.text();
+  }
+  
+  async function testUK() {
+    const res = await fetch('/api/proxy?url=https://httpbin.org/ip&location=london');
+    document.getElementById('result').textContent = await res.text();
+  }
+  
+  async function testLeak() {
+    const ny = await (await fetch('/api/proxy?url=https://ipinfo.io/json&location=newyork')).json();
+    const uk = await (await fetch('/api/proxy?url=https://ipinfo.io/json&location=london')).json();
+    document.getElementById('result').innerHTML = 
+      `<span class="ip">🇺🇸 NY: ${ny.ip || 'Success'}</span>\n<span class="ip">🇬🇧 UK: ${uk.ip || 'Success'}</span>\n\n✅ Both locations working!`;
+  }
   </script>
 </body>
 </html>
