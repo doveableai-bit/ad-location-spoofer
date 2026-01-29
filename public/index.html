@@ -1,43 +1,84 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>🇺🇸🇬🇧 AD Location Spoofer</title>
+  <title>AD Location Spoofer</title>
   <meta charset="utf-8">
   <style>
-    body{font-family:monospace;background:#1a1a1a;color:#0f0;padding:2rem;max-width:800px;margin:auto}
-    button{padding:1rem 2rem;margin:.5rem;background:#0070f3;color:white;border:none;border-radius:5px;cursor:pointer;font-size:16px}
-    button:hover{background:#005bb5}
-    #result{background:#111;padding:1.5rem;margin-top:1rem;border-radius:5px;white-space:pre-wrap;font-family:monospace}
-    .ip{display:inline-block;background:#333;padding:.5rem;border-radius:3px;margin:.2rem}
+    body{font-family:monospace;background:#000;color:#0f0;padding:2rem;max-width:900px;margin:auto;line-height:1.6}
+    button{padding:12px 24px;margin:8px;background:#0f0;color:#000;border:none;border-radius:6px;cursor:pointer;font-size:16px;font-family:monospace}
+    button:hover{background:#0a0}
+    #result{background:#111;padding:20px;margin:20px 0;border-radius:8px;white-space:pre-wrap;font-family:monospace;font-size:14px;max-height:400px;overflow:auto}
+    .ip{background:#0f0;color:#000;padding:8px 16px;border-radius:20px;display:inline-block;font-weight:bold;margin:4px}
+    h1{font-size:2.5em;text-align:center;margin-bottom:10px}
+    .status{display:inline-block;padding:8px 16px;background:#0a0;color:#000;border-radius:20px;font-weight:bold}
+    input{width:100%;padding:12px;margin:10px 0;border:1px solid #0f0;background:#111;color:#0f0;font-family:monospace;font-size:16px;border-radius:6px}
   </style>
 </head>
 <body>
-  <h1>🛡️ AD Location Spoofer <small>v2.0</small></h1>
-  <p>Test your NY/UK IP spoofing before browser proxy setup:</p>
+  <h1>🛡️ AD Location Spoofer v2.0</h1>
+  <div style="text-align:center;margin-bottom:30px">
+    <div class="status" id="status">⏳ LOADING...</div>
+  </div>
+
+  <button onclick="testNY()">🇺🇸 New York IP Test</button>
+  <button onclick="testUK()">🇬🇧 London IP Test</button>
+  <button onclick="testStatus()">🔍 Status Check</button>
   
-  <button onclick="testNY()">🇺🇸 Test New York IP</button>
-  <button onclick="testUK()">🇬🇧 Test London IP</button>
-  <button onclick="testLeak()">🔍 Full IP Leak Test</button>
-  
-  <div id="result">Click a button to test...</div>
+  <h3 style="margin-top:30px">Custom Test:</h3>
+  <input id="customUrl" placeholder="https://ipinfo.io/json" value="https://ipinfo.io/json">
+  <button onclick="testCustom()">🚀 Test URL</button>
+  <select id="locationSelect">
+    <option value="newyork">🇺🇸 New York</option>
+    <option value="london">🇬🇧 London</option>
+  </select>
+
+  <div id="result">Click any button to start testing...</div>
 
   <script>
-  async function testNY() {
-    const res = await fetch('/api/proxy?url=https://httpbin.org/ip&location=newyork');
-    document.getElementById('result').textContent = await res.text();
-  }
-  
-  async function testUK() {
-    const res = await fetch('/api/proxy?url=https://httpbin.org/ip&location=london');
-    document.getElementById('result').textContent = await res.text();
-  }
-  
-  async function testLeak() {
-    const ny = await (await fetch('/api/proxy?url=https://ipinfo.io/json&location=newyork')).json();
-    const uk = await (await fetch('/api/proxy?url=https://ipinfo.io/json&location=london')).json();
-    document.getElementById('result').innerHTML = 
-      `<span class="ip">🇺🇸 NY: ${ny.ip || 'Success'}</span>\n<span class="ip">🇬🇧 UK: ${uk.ip || 'Success'}</span>\n\n✅ Both locations working!`;
-  }
+    const baseUrl = window.location.origin;
+    
+    async function api(url) {
+      const res = await fetch(url);
+      return await res.text();
+    }
+    
+    async function testNY() {
+      showLoading('Testing New York...');
+      const result = await api(`${baseUrl}/api/proxy?url=https://ipinfo.io/json&location=newyork`);
+      document.getElementById('result').textContent = result;
+    }
+    
+    async function testUK() {
+      showLoading('Testing London...');
+      const result = await api(`${baseUrl}/api/proxy?url=https://ipinfo.io/json&location=london`);
+      document.getElementById('result').textContent = result;
+    }
+    
+    async function testStatus() {
+      showLoading('Checking status...');
+      const result = await api(`${baseUrl}/api/test`);
+      document.getElementById('result').textContent = result;
+      document.getElementById('status').textContent = '✅ LIVE';
+      document.getElementById('status').style.background = '#0f0';
+    }
+    
+    async function testCustom() {
+      const url = document.getElementById('customUrl').value;
+      const location = document.getElementById('locationSelect').value;
+      showLoading(`Proxying through ${location}...`);
+      const encoded = encodeURIComponent(url);
+      const result = await api(`${baseUrl}/api/proxy?url=${encoded}&location=${location}`);
+      document.getElementById('result').textContent = result;
+    }
+    
+    function showLoading(msg) {
+      document.getElementById('result').textContent = `⏳ ${msg}`;
+    }
+    
+    // Auto-test on load
+    window.onload = () => {
+      testStatus();
+    };
   </script>
 </body>
 </html>
