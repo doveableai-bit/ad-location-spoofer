@@ -1,26 +1,5 @@
 {
   "name": "ad-location-spoofer",
-  "version": "2.0.0",
-  "description": "Advanced proxy for testing ads and websites from different geographic locations with spoofed residential IPs",
-  "type": "module",
-  "main": "api/proxy.js",
-  "scripts": {
-    "dev": "vercel dev",
-    "start": "vercel dev",
-    "deploy": "vercel --prod",
-    "test": "echo \"No tests specified\" && exit 0"
-  },
-  "keywords": [
-    "proxy",
-    "ad-testing",
-    "location-spoofer",
-    "ip-spoofing",
-    "vercel",
-    "serverless",
-    "privacy"
-  ],
-  "author": "Your Name",
-  "license": "MIT",
-  "dependencies": {},
-  "devDependencies": {}
+  "version": "1.0.0",
+  "type": "module"
 }
