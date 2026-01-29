@@ -1,22 +1,15 @@
-// api/test.js - Status endpoint
-export const runtime = 'edge';
-
-export default async function handler(req) {
-  const spoofIP = '198.41.199.123'; // NY residential
+// api/test.js - Serverless
+export default function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Content-Type', 'application/json');
   
-  return new Response(JSON.stringify({
-    status: '🟢 ONLINE',
+  res.status(200).json({
+    status: '🟢 ONLINE - Serverless Runtime',
     timestamp: new Date().toISOString(),
-    vercelRegion: process.env.VERCEL_REGION || 'unknown',
-    spoofIP: spoofIP,
-    nyIps: ['198.41.199.123', '172.69.70.123'],
-    londonIps: ['188.114.96.123', '172.67.132.123'],
-    test: 'Proxy ready for ad evasion 👻'
-  }, null, 2), {
-    status: 200,
-    headers: {
-      'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': '*'
-    }
+    ips: {
+      newyork: ['67.161.149.122', '174.138.15.123'],
+      london: ['51.15.241.123', '35.176.123.123']
+    },
+    test: '✅ Buttons will work now!'
   });
 }
