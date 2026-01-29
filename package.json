@@ -1,6 +1,5 @@
 {
   "name": "ad-location-spoofer",
-  "version": "1.0.0",
-  "type": "module",
-  "dependencies": {}
+  "version": "2.0.0",
+  "type": "module"
 }
