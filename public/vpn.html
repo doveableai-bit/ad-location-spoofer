@@ -1,100 +1,78 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>🇺🇸🇬🇧 Residential VPN</title>
-  <style>
-    body{background:linear-gradient(45deg,#000,#111,#000);color:#0f0;font-family:monospace;padding:2rem;max-width:1200px;margin:auto}
-    button{padding:20px 40px;margin:15px;font-size:18px;background:#0f0;color:#000;border:none;border-radius:12px;cursor:pointer;font-weight:bold;transition:all.3s}
-    button:hover{transform:scale(1.08);box-shadow:0 0 30px #0f0}
-    #vpn-status{padding:25px;background:#0a0;border-radius:15px;margin:30px 0;font-size:20px}
-    #result{background:#111;padding:30px;border-radius:15px;max-height:600px;overflow:auto;border:2px solid #333;white-space:pre-wrap;font-size:14px}
-    .ip-badge{background:#0f0;color:#000;padding:15px 25px;border-radius:30px;font-size:22px;font-weight:bold;display:inline-block;margin:15px}
-    input,select{padding:20px;margin:15px;border:2px solid #0f0;background:#000;color:#0f0;font-size:18px;border-radius:10px;width:100%;max-width:500px}
-    h1{font-size:4em;text-align:center;margin:30px 0;text-shadow:0 0 40px #0f0;letter-spacing:5px}
-    .vpn-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:25px;margin:40px 0}
-  </style>
+  <title>🏠 Residential VPN - Undetectable</title>
+  <style>body{background:#000;color:#0f0;font-family:monospace;padding:3rem;max-width:1400px;margin:auto;text-align:center}
+  button{padding:25px 50px;margin:20px;font-size:20px;background:#0f0;color:#000;border:none;border-radius:15px;cursor:pointer;font-weight:bold;box-shadow:0 0 30px #0f0}
+  button:hover{transform:scale(1.1)}
+  #status{padding:30px;background:#0a0;border-radius:20px;margin:40px;font-size:24px}
+  #result{background:#111;padding:40px;border-radius:20px;max-height:700px;overflow:auto;border:3px solid #333;font-size:16px;white-space:pre-wrap}
+  .ip{display:inline-block;background:#0f0;color:#000;padding:20px 35px;border-radius:40px;font-size:28px;font-weight:bold;margin:20px;box-shadow:0 0 40px #0f0}
+  input,select{padding:20px;margin:20px;border:3px solid #0f0;background:#000;color:#0f0;font-size:20px;border-radius:15px;width:90%;max-width:600px}
+  h1{font-size:5em;margin:40px 0;text-shadow:0 0 60px #0f0}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:30px;margin:50px 0}</style>
 </head>
 <body>
-  <h1>🏠 Residential VPN</h1>
+  <h1>🌐 RESIDENTIAL VPN</h1>
+  <div id="status">🚀 Activating VPN Tunnel...</div>
   
-  <div id="vpn-status">🔄 Connecting VPN...</div>
-  
-  <div class="vpn-grid">
-    <button onclick="vpnNY()">🇺🇸 NEW YORK VPN</button>
-    <button onclick="vpnUK()">🇬🇧 LONDON VPN</button>
-    <button onclick="testIP()">🌐 CHECK IP</button>
-    <button onclick="testAds()">📺 TEST ADS</button>
+  <div class="grid">
+    <button onclick="vpnNY()">🇺🇸 NEW YORK<br>RESIDENTIAL VPN</button>
+    <button onclick="vpnUK()">🇬🇧 LONDON<br>RESIDENTIAL VPN</button>
+    <button onclick="testRealIP()">🕵️ REAL IP TEST</button>
+    <button onclick="testWhoer()">🔍 WHOER.NET TEST</button>
   </div>
 
-  <div style="text-align:center;margin:40px 0">
-    <input id="customUrl" value="https://ipinfo.io/json" placeholder="Any Website URL">
-    <select id="vpnLocation">
-      <option value="newyork">🇺🇸 New York Residential</option>
-      <option value="london">🇬🇧 London Residential</option>
-    </select>
-    <br><button onclick="vpnCustom()" style="padding:25px 60px;font-size:20px">🚀 CONNECT VPN</button>
+  <div>
+    <input id="url" value="https://ipinfo.io/json" placeholder="Any URL">
+    <select id="loc"><option value="newyork">🇺🇸 New York</option><option value="london">🇬🇧 London</option></select>
+    <br><button onclick="vpnCustom()" style="padding:30px 80px;font-size:24px">🎯 PROXY NOW</button>
   </div>
 
-  <div id="result">Click VPN button to tunnel through residential proxy...</div>
+  <div id="result">Click any VPN button → See REAL USA/UK IP</div>
 
   <script>
-    const VPN_BASE = '/api/vpn';
-
-    async function requestVPN(url, location) {
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 15000);
-      
-      try {
-        const res = await fetch(`${VPN_BASE}?url=${encodeURIComponent(url)}&location=${location}`, {
-          signal: controller.signal
-        });
-        clearTimeout(timeout);
-        return await res.text();
-      } catch(e) {
-        clearTimeout(timeout);
-        throw e;
-      }
+    async function proxy(url, loc) {
+      const res = await fetch(`/api/vpn?url=${encodeURIComponent(url)}&location=${loc}`);
+      return await res.text();
     }
 
-    async function vpnNY() { await vpnTest('https://ipinfo.io/json', 'newyork'); }
-    async function vpnUK() { await vpnTest('https://ipinfo.io/json', 'london'); }
-    async function testIP() { await vpnTest('https://httpbin.org/ip', document.getElementById('vpnLocation').value); }
-    async function testAds() { await vpnTest('https://whoer.net', 'newyork'); }
+    async function vpnNY() { await test('https://ipinfo.io/json', 'newyork'); }
+    async function vpnUK() { await test('https://ipinfo.io/json', 'london'); }
+    async function testRealIP() { await test('https://httpbin.org/ip', document.getElementById('loc').value); }
+    async function testWhoer() { await test('https://whoer.net', 'newyork'); }
     
     async function vpnCustom() {
-      const url = document.getElementById('customUrl').value;
-      const loc = document.getElementById('vpnLocation').value;
-      await vpnTest(url, loc);
+      const url = document.getElementById('url').value;
+      const loc = document.getElementById('loc').value;
+      await test(url, loc);
     }
 
-    async function vpnTest(url, location) {
+    async function test(url, loc) {
       try {
-        document.getElementById('vpn-status').innerHTML = `🔄 VPN ${location.toUpperCase()} → ${url}`;
-        document.getElementById('vpn-status').style.background = '#ff0';
+        document.getElementById('status').textContent = `🔄 VPN ${loc.toUpperCase()} → ${url}`;
+        document.getElementById('status').style.background = '#ff0';
         
-        const result = await requestVPN(url, location);
+        const result = await proxy(url, loc);
         document.getElementById('result').textContent = result;
         
-        // Highlight IP
-        const ipMatch = result.match(/"ip":\s*"([^"]+)"/) || result.match(/Your IP:?\s*([^\s<]+)/i);
+        // Extract & highlight IP
+        const ipMatch = result.match(/"ip":\s*"([0-9.]+)"/) || result.match(/Your IP[:\s]*([0-9.]+)/i);
         if (ipMatch) {
           const ip = ipMatch[1];
-          document.getElementById('result').innerHTML = result.replace(
-            new RegExp(ip, 'g'), `<span class="ip-badge">${ip}</span>`
-          );
-          document.getElementById('vpn-status').innerHTML = `✅ VPN ACTIVE: ${ip} (${location.toUpperCase()})`;
-          document.getElementById('vpn-status').style.background = '#0f0';
+          document.getElementById('result').innerHTML = result.replace(new RegExp(ip.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), `<span class="ip">${ip}</span>`);
+          document.getElementById('status').innerHTML = `✅ VPN OK: ${ip} (${loc.toUpperCase()})`;
+          document.getElementById('status').style.background = '#0f0';
         }
-        
-      } catch(error) {
-        document.getElementById('result').textContent = `❌ VPN Error: ${error.message}`;
-        document.getElementById('vpn-status').innerHTML = '❌ VPN Failed';
-        document.getElementById('vpn-status').style.background = '#f00';
+      } catch(e) {
+        document.getElementById('result').textContent = `❌ ${e.message}`;
+        document.getElementById('status').textContent = '❌ VPN Error';
+        document.getElementById('status').style.background = '#f00';
       }
     }
 
-    // Auto test
-    window.onload = () => setTimeout(() => testIP(), 1000);
+    // Auto-test
+    setTimeout(() => testRealIP(), 1500);
   </script>
 </body>
 </html>
