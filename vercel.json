@@ -1,7 +1,12 @@
 {
   "functions": {
-    "api/vpn.js": { "maxDuration": 15 },
-    "api/test.js": { "maxDuration": 5 }
+    "api/vpn.js": {
+      "runtime": "edge",
+      "maxDuration": 15
+    }
   },
-  "rewrites": [{ "source": "/(.*)", "destination": "/api/vpn" }]
+  "rewrites": [
+    { "source": "/vpn.html", "destination": "/vpn.html" },
+    { "source": "/(.*)", "destination": "/api/vpn" }
+  ]
 }
