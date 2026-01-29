@@ -1,20 +1,17 @@
 {
   "functions": {
-    "api/proxy.js": {
-      "maxDuration": 10
-    },
-    "api/test.js": {
+    "api/*.js": {
+      "runtime": "nodejs18.x",
       "maxDuration": 10
     }
   },
-  "rewrites": [
+  "headers": [
     {
       "source": "/api/(.*)",
-      "destination": "/api/$1"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "headers": [
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET, POST, OPTIONS" }
+      ]
     }
   ]
 }
