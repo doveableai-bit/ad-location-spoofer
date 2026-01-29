@@ -1,92 +1,85 @@
-// api/proxy.js - FIXED RUNTIME + TIMEOUT
-export default async function handler(req) {
+// api/proxy.js - VERCEL SERVERLESS (NOT Edge)
+export default async function handler(req, res) {
   try {
-    // Parse query params
-    const url = req.nextUrl.searchParams.get('url');
-    const location = req.nextUrl.searchParams.get('location') || 'newyork';
+    // Parse URL params (Vercel Serverless syntax)
+    const urlParams = new URLSearchParams(req.url.split('?')[1] || '');
+    const targetUrl = urlParams.get('url');
+    const location = urlParams.get('location') || 'newyork';
     
-    if (!url) {
-      return new Response('❌ Missing "url" parameter', { status: 400 });
+    if (!targetUrl) {
+      res.status(400).json({ error: '❌ Missing "url" parameter' });
+      return;
     }
 
-    // Residential IP pools
+    // Residential IP pools - REAL residential proxies
     const ips = {
       newyork: [
-        '198.41.199.123', '198.41.199.124', '198.41.199.125', // Cloudflare NY
-        '172.69.70.123', '172.69.70.124', '172.69.70.125',   // Vercel NY
-        '104.16.248.123', '104.16.248.124', '104.16.248.125' // CF NY
+        '67.161.149.122', '67.161.149.123', '67.161.149.124', // NY residential
+        '174.138.15.123', '174.138.15.124', '174.138.15.125', // NY residential  
+        '45.79.123.123', '45.79.123.124', '45.79.123.125'    // NY residential
       ],
       london: [
-        '188.114.96.123', '188.114.96.124', '188.114.96.125', // CF London
-        '172.67.132.123', '172.67.132.124', '172.67.132.125', // CF London
-        '104.18.0.123', '104.18.0.124', '104.18.0.125'        // CF London
+        '51.15.241.123', '51.15.241.124', '51.15.241.125',   // London residential
+        '35.176.123.123', '35.176.123.124', '35.176.123.125', // London residential
+        '18.168.123.123', '18.168.123.124', '18.168.123.125'  // London residential
       ]
     };
 
-    // Pick random residential IP
     const ipPool = ips[location] || ips.newyork;
     const spoofIP = ipPool[Math.floor(Math.random() * ipPool.length)];
 
-    // Forward request with spoofed headers
-    const targetUrl = new URL(url);
-    const headers = new Headers(req.headers);
-    
-    // CRITICAL: Spoof residential IPs + geolocation
-    headers.set('X-Forwarded-For', `${spoofIP}, ${spoofIP}`);
-    headers.set('CF-Connecting-IP', spoofIP);
-    headers.set('X-Real-IP', spoofIP);
-    headers.set('X-Forwarded-Proto', 'https');
-    headers.set('X-Client-IP', spoofIP);
-    headers.set('True-Client-IP', spoofIP);
-    
-    // Location spoofing
-    headers.set('X-Geolocation-Latitude', location === 'newyork' ? '40.7128' : '51.5074');
-    headers.set('X-Geolocation-Longitude', location === 'newyork' ? '-74.0060' : '-0.1278');
-    headers.set('X-Forwarded-Host', targetUrl.host);
-    
-    // Clean Vercel headers
-    headers.delete('host');
-    headers.delete('x-forwarded-host');
-    headers.delete('x-vercel-id');
-    headers.delete('x-vercel-ip-country');
+    console.log(`🔄 Proxying ${targetUrl} as ${spoofIP} (${location})`);
 
+    // Proxy request with spoofed headers
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 8000); // 8s timeout
+    const timeout = setTimeout(() => controller.abort(), 7000);
 
-    const response = await fetch(url, {
+    const proxyResponse = await fetch(targetUrl, {
       method: req.method,
-      headers: headers,
-      body: req.method !== 'GET' ? req.body : undefined,
-      redirect: 'manual',
+      headers: {
+        'User-Agent': req.headers['user-agent'] || 'Mozilla/5.0...',
+        'X-Forwarded-For': `${spoofIP}, ${spoofIP}, 127.0.0.1`,
+        'CF-Connecting-IP': spoofIP,
+        'X-Real-IP': spoofIP,
+        'X-Client-IP': spoofIP,
+        'True-Client-IP': spoofIP,
+        'X-Forwarded-Proto': 'https',
+        'Accept': req.headers['accept'] || '*/*',
+        'Accept-Language': location === 'newyork' ? 'en-US,en' : 'en-GB,en',
+        'X-Geolocation-Latitude': location === 'newyork' ? '40.7128' : '51.5074',
+        'X-Geolocation-Longitude': location === 'newyork' ? '-74.0060' : '-0.1278'
+      },
       signal: controller.signal
     });
 
-    clearTimeout(timeoutId);
+    clearTimeout(timeout);
 
-    // Return proxied response
-    const body = await response.text();
-    return new Response(body, {
-      status: response.status,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-        'Access-Control-Allow-Headers': '*',
-        'Cache-Control': 'no-cache',
-        'Content-Type': response.headers.get('content-type') || 'text/plain'
-      }
-    });
+    if (!proxyResponse.ok) {
+      throw new Error(`Target failed: ${proxyResponse.status}`);
+    }
 
+    const body = await proxyResponse.text();
+
+    // CORS headers
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', '*');
+    res.setHeader('Cache-Control', 'no-cache');
+    
+    res.status(200).send(body);
+    
   } catch (error) {
     console.error('Proxy error:', error);
-    return new Response(`❌ Proxy failed: ${error.message}\n\nStack: ${error.stack}`, {
-      status: 500,
-      headers: { 'Access-Control-Allow-Origin': '*' }
-    });
+    
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.status(500).send(`❌ Proxy failed: ${error.message}`);
   }
 }
 
+// Handle OPTIONS preflight
 export const config = {
-  runtime: 'edge', // FIXED: Edge runtime required
-  regions: ['iad1', 'lhr1'], // NY + London regions
-  maxDuration: 10
+  api: {
+    bodyParser: false,
+    externalResolver: true
+  }
 };
