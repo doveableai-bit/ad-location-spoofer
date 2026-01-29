@@ -1,23 +1,20 @@
-export default function handler(request) {
-  const { searchParams } = new URL(request.url);
-  const location = searchParams.get('location') || 'newyork';
+// api/test.js - Status endpoint
+export const runtime = 'edge';
 
-  const ips = location === 'london' ? 
-    ['51.89.0.1', '35.176.0.1'] : 
-    ['207.46.13.99', '104.28.0.1'];
-
-  const ip = ips[Math.floor(Math.random() * ips.length)];
-
+export default async function handler(req) {
+  const spoofIP = '198.41.199.123'; // NY residential
+  
   return new Response(JSON.stringify({
-    status: '✅ LIVE',
-    location: location.toUpperCase(),
-    spoofedIP: ip,
-    test: [
-      `https://ad-location-spoofer.vercel.app/api/proxy?url=https://ipinfo.io/json&location=${location}`,
-      `/api/proxy?url=https://httpbin.org/ip&location=${location}`
-    ]
+    status: '🟢 ONLINE',
+    timestamp: new Date().toISOString(),
+    vercelRegion: process.env.VERCEL_REGION || 'unknown',
+    spoofIP: spoofIP,
+    nyIps: ['198.41.199.123', '172.69.70.123'],
+    londonIps: ['188.114.96.123', '172.67.132.123'],
+    test: 'Proxy ready for ad evasion 👻'
   }, null, 2), {
-    headers: { 
+    status: 200,
+    headers: {
       'Content-Type': 'application/json',
       'Access-Control-Allow-Origin': '*'
     }
