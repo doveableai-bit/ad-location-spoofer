@@ -21,17 +21,6 @@
   ],
   "author": "Your Name",
   "license": "MIT",
-  "engines": {
-    "node": ">=18.x"
-  },
   "dependencies": {},
-  "devDependencies": {},
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/doveableai-bit/ad-location-spoofer.git"
-  },
-  "bugs": {
-    "url": "https://github.com/doveableai-bit/ad-location-spoofer/issues"
-  },
-  "homepage": "https://ad-location-spoofer.vercel.app"
+  "devDependencies": {}
 }
