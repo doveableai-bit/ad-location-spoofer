@@ -1,13 +1,7 @@
 {
   "functions": {
-    "api/proxy.js": {
-      "maxDuration": 10
-    },
-    "api/test.js": {
-      "maxDuration": 2
-    }
+    "api/vpn.js": { "maxDuration": 15 },
+    "api/test.js": { "maxDuration": 5 }
   },
-  "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/$1" }
-  ]
+  "rewrites": [{ "source": "/(.*)", "destination": "/api/vpn" }]
 }
